@@ -94,7 +94,7 @@ int main() {
         .tv_nsec = NANOSECS_PER_FRAME,
     };
 
-    char* data = malloc(image->width * image->height * 3);
+    char* data = malloc(image->width * image->height * 4);
 
     XSync(dpy, False);
     do {
@@ -109,6 +109,7 @@ int main() {
             data[size++] = image->data[i+2];
             data[size++] = image->data[i+1];
             data[size++] = image->data[i+0];
+            data[size++] = 0xff;
         }
         write(STDOUT_FILENO, data, size);
 
