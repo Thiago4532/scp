@@ -9,19 +9,30 @@ project(scp C)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_C_EXTENSIONS ON)
 
-set(SOURCES
-    src/main.c
+set(SCP_SOURCES
+    src/scp.c
+)
+set(PLAYER_SOURCES
+    src/player.c
 )
 add_subdirectory(lib/stb)
 
-add_executable(scp ${SOURCES})
-# target_include_directories(scp
-#     PRIVATE
-#         ${PROJECT_SOURCE_DIR}/lib/stb
-# )
+add_executable(scp ${SCP_SOURCES})
 target_link_libraries(scp
     X11
     Xext
     m
     stb
+    avcodec
+    avutil
+)
+
+add_executable(player ${PLAYER_SOURCES})
+target_link_libraries(player
+    SDL2
+    SDL2_image
+    m
+    stb
+    avcodec
+    avutil
 )
