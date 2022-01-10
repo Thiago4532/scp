@@ -1,3 +1,4 @@
+#include <SDL2/SDL_video.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -6,8 +7,7 @@
 #include <X11/Xutil.h>
 #include <X11/extensions/XShm.h>
 #include <fcntl.h>
-#include <sys/shm.h>
-#include <errno.h>
+#include <sys/shm.h> #include <errno.h>
 #include <string.h>
 #include "stb_image_write.h"
 #include <time.h>
@@ -142,7 +142,7 @@ int main() {
         fprintf(stderr, "Warning: Linear texture filtering not enabled!");
     }
  
-    SDL_Window* window = SDL_CreateWindow( "LearnOpenGL", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 960, 540, SDL_WINDOW_SHOWN );
+    SDL_Window* window = SDL_CreateWindow( "LearnOpenGL", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 960, 540, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
     SDL_Renderer *renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
     SDL_SetRenderDrawColor( renderer, 0xFF, 0xFF, 0xFF, 0xFF );
 
