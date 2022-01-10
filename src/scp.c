@@ -149,12 +149,12 @@ int main() {
     c->pix_fmt = AV_PIX_FMT_RGB0;
 
     int err;
-    err = av_opt_set_int(c->priv_data, "preset", 18, 0);
-    if (err < 0) {
-        die("failed to set option: %s\n", av_err2str(err));
-    }
+    // err = av_opt_set_int(c->priv_data, "preset", 18, 0);
+    // if (err < 0) {
+    //     die("failed to set option: %s\n", av_err2str(err));
+    // }
 
-    err = av_opt_set_int(c->priv_data, "tune", 2, 0);
+    err = av_opt_set_int(c->priv_data, "tune", 3, 0);
     if (err < 0) {
         die("failed to set option: %s\n", av_err2str(err));
     }

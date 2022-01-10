@@ -208,11 +208,11 @@ int main() {
 
             if (pkt->size)
                 decode(c, frame, pkt, texture);
-        }
 
-        SDL_RenderClear(renderer);
-        SDL_RenderCopy(renderer, texture, NULL, NULL);
-        SDL_RenderPresent(renderer);
+            SDL_RenderClear(renderer);
+            SDL_RenderCopy(renderer, texture, NULL, NULL);
+            SDL_RenderPresent(renderer);
+        }
     }
 
     av_frame_free(&frame);
