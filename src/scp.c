@@ -203,8 +203,10 @@ int main() {
         }
 
         measure_t m;
-        m.pts = i++;
+        m.pts = i;
         m.type = MEASURE_ENCODER;
+
+        frame->pts = i++;
 
         if (fd != -1)
             write(fd, &m, sizeof m);

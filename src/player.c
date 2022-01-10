@@ -7,7 +7,7 @@
 #include <X11/Xutil.h>
 #include <X11/extensions/XShm.h>
 #include <fcntl.h>
-#include <sys/shm.h> #include <errno.h>
+#include <sys/shm.h>
 #include <string.h>
 #include "stb_image_write.h"
 #include <time.h>
@@ -74,16 +74,6 @@ static void measure_cpu(Bool end) {
     }
 }
 
-static void diff_timespec(struct timespec* res, const struct timespec *a, const struct timespec *b) {
-    res->tv_sec = a->tv_sec - b->tv_sec;
-    res->tv_nsec = a->tv_nsec - b->tv_nsec;
-
-    if (res->tv_nsec < 0) {
-        res->tv_nsec += 1000000000;
-        res->tv_sec--;
-    }
-}
-
 static void decode(AVCodecContext *dec_ctx, AVFrame *frame, AVPacket *pkt, SDL_Texture* texture) {
     int ret;
 
@@ -109,7 +99,7 @@ static void decode(AVCodecContext *dec_ctx, AVFrame *frame, AVPacket *pkt, SDL_T
             write(fd, &m, sizeof m);
         int size[] = {frame->width * frame->height, (frame->width * frame->height)/4, (frame->width * frame->height)/4};
 
-        // printf("%s\n", av_get_pix_fmt_name(frame->format));
+        printf("%s\n", av_get_pix_fmt_name(frame->format));
      
         uint8_t* pixels;
         int pitch;
@@ -194,9 +184,6 @@ int main() {
     };
 
     while(1) {
-        struct timespec s, es, elapsed, rem;
-        clock_gettime(CLOCK_MONOTONIC, &s);
-
         bool quit = false;
         while (SDL_PollEvent( &e ) != 0) {
             if (e.type == SDL_QUIT) {
@@ -226,13 +213,6 @@ int main() {
         SDL_RenderClear(renderer);
         SDL_RenderCopy(renderer, texture, NULL, NULL);
         SDL_RenderPresent(renderer);
-
-        clock_gettime(CLOCK_MONOTONIC, &es);
-
-        diff_timespec(&elapsed, &es, &s);
-        diff_timespec(&rem, &frame_timespec, &elapsed);
-
-        nanosleep(&rem, NULL);
     }
 
     av_frame_free(&frame);
