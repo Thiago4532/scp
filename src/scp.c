@@ -149,20 +149,21 @@ int main() {
     c->pix_fmt = AV_PIX_FMT_RGB0;
 
     int err;
-    // err = av_opt_set_int(c->priv_data, "preset", 18, 0);
-    // if (err < 0) {
-    //     die("failed to set option: %s\n", av_err2str(err));
-    // }
-
-    err = av_opt_set_int(c->priv_data, "tune", 3, 0);
+    err = av_opt_set_int(c->priv_data, "preset", 18, 0);
     if (err < 0) {
         die("failed to set option: %s\n", av_err2str(err));
     }
 
-    err = av_opt_set_int(c->priv_data, "zerolatency", 1, 0);
+    err = av_opt_set_int(c->priv_data, "tune", 4, 0);
     if (err < 0) {
         die("failed to set option: %s\n", av_err2str(err));
     }
+
+    // c->max_b_frames = 0;
+    err = av_opt_set_int(c->priv_data, "qp", 0, 0);
+    if (err < 0) {
+        die("failed to set option: %s\n", av_err2str(err));
+    } 
 
     err = avcodec_open2(c, codec, NULL);
     if (err < 0) {

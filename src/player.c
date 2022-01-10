@@ -26,7 +26,7 @@
 #define DECODER_NAME "h264"
 #define FIFO "./fifo"
 
-#define INBUF_SIZE 4096
+#define INBUF_SIZE 32768
 uint8_t inbuf[INBUF_SIZE + AV_INPUT_BUFFER_PADDING_SIZE];
 int fd;
 
@@ -99,7 +99,7 @@ static void decode(AVCodecContext *dec_ctx, AVFrame *frame, AVPacket *pkt, SDL_T
             write(fd, &m, sizeof m);
         int size[] = {frame->width * frame->height, (frame->width * frame->height)/4, (frame->width * frame->height)/4};
 
-        printf("%s\n", av_get_pix_fmt_name(frame->format));
+        // printf("%s\n", av_get_pix_fmt_name(frame->format));
      
         uint8_t* pixels;
         int pitch;
@@ -132,7 +132,7 @@ int main() {
         fprintf(stderr, "Warning: Linear texture filtering not enabled!");
     }
  
-    SDL_Window* window = SDL_CreateWindow( "LearnOpenGL", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 960, 540, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
+    SDL_Window* window = SDL_CreateWindow( "LearnOpenGL", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 1280, 720, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
     SDL_Renderer *renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
     SDL_SetRenderDrawColor( renderer, 0xFF, 0xFF, 0xFF, 0xFF );
 
