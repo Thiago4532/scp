@@ -15,6 +15,7 @@
 #include <byteswap.h>
 #include <libavcodec/avcodec.h>
 #include <libavutil/opt.h>
+#include "piu/PIUSocket.h"
 
 #define WIDTH 1920
 #define HEIGHT 1080
@@ -45,29 +46,6 @@ static long long monotonic_clock() {
     return (long long)time.tv_sec * 1000ll + time.tv_nsec / 1000000;
 }
 
-static void measure(Bool end) {
-    static long long m = 0;
-    if (!end) {
-        m = monotonic_clock();
-    } else {
-        long long t = monotonic_clock() - m;
-
-        fprintf(stderr, "Clock: %lldms\n", t);
-    }
-}
-
-static void measure_cpu(Bool end) {
-    static clock_t m = 0;
-    if (!end) {
-        m = clock();
-    } else {
-        clock_t t = clock() - m;
-        double time_taken = ((double)t) / CLOCKS_PER_SEC;
-
-        fprintf(stderr, "Clock: %lf\n", time_taken);
-    }
-}
-
 static void diff_timespec(struct timespec* res, const struct timespec *a, const struct timespec *b) {
     res->tv_sec = a->tv_sec - b->tv_sec;
     res->tv_nsec = a->tv_nsec - b->tv_nsec;
@@ -86,8 +64,29 @@ int comp_timespec(const struct timespec *a, const struct timespec *b) {
     return a->tv_sec < b->tv_sec;
 }
 
-int main() {
-    fd = open(FIFO, O_WRONLY);
+static void stop_loop() {
+    piu_stop_loop();
+}
+
+int main(int argc, char* argv[]) {
+    piu_main_loop();
+    atexit(stop_loop);
+
+    PIUServer* srv = piu_bind(4532);
+    if (srv == NULL) {
+        die("failed to bind\n");
+    }
+
+    PIUSocket* skt = piu_accept(srv);
+    if (skt == NULL) {
+        die("failed to accept\n");
+    }
+
+    if (argc > 1 && (strcmp(argv[1], "--measure") == 0 || strcmp(argv[1], "-m") == 0))
+        fd = open(FIFO, O_WRONLY);
+    else
+        fd = -1;
+
     Display *dpy;
     Screen* screen;
 
@@ -149,18 +148,18 @@ int main() {
     c->pix_fmt = AV_PIX_FMT_RGB0;
 
     int err;
-    err = av_opt_set_int(c->priv_data, "preset", 18, 0);
+    err = av_opt_set_int(c->priv_data, "preset", 16, 0);
     if (err < 0) {
         die("failed to set option: %s\n", av_err2str(err));
     }
 
-    err = av_opt_set_int(c->priv_data, "tune", 4, 0);
-    if (err < 0) {
-        die("failed to set option: %s\n", av_err2str(err));
-    }
+    // err = av_opt_set_int(c->priv_data, "tune", 4, 0);
+    // if (err < 0) {
+    //     die("failed to set option: %s\n", av_err2str(err));
+    // }
 
-    // c->max_b_frames = 0;
-    err = av_opt_set_int(c->priv_data, "qp", 0, 0);
+    c->max_b_frames = 0;
+    err = av_opt_set_int(c->priv_data, "qp", 18, 0);
     if (err < 0) {
         die("failed to set option: %s\n", av_err2str(err));
     } 
@@ -225,7 +224,18 @@ int main() {
                 die("error during enconding\n");
             }
 
-            write(STDOUT_FILENO, pkt->data, pkt->size);
+            uint8_t* data = pkt->data;
+            int size = pkt->size;
+
+            while (size > 32000) {
+                // write(STDOUT_FILENO, data, 30000);
+                piu_send(skt, data, 32000);
+
+                data += 32000;
+                size -= 32000;
+            }
+            piu_send(skt, data, size);
+            // write(STDOUT_FILENO, data, size);
         }
 
         clock_gettime(CLOCK_MONOTONIC, &e);

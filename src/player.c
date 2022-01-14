@@ -18,6 +18,7 @@
 #include <libavutil/opt.h>
 #include <stdbool.h>
 #include <libavutil/pixdesc.h>
+#include "piu/PIUSocket.h"
 
 #define WIDTH 1920
 #define HEIGHT 1080
@@ -120,8 +121,28 @@ static void decode(AVCodecContext *dec_ctx, AVFrame *frame, AVPacket *pkt, SDL_T
     }
 }
 
-int main() {
-    fd = open(FIFO, O_WRONLY);
+static void stop_loop() {
+    piu_stop_loop();
+}
+
+int main(int argc, char* argv[]) {
+    fd = -1;
+    char* ip = "127.0.0.1";
+
+    for (int i = 1; i < argc; i++) {
+        if ((strcmp(argv[i], "--measure") == 0 || strcmp(argv[1], "-m") == 0))
+            fd = open(FIFO, O_WRONLY);
+        else
+            ip = argv[i];
+    }
+
+    piu_main_loop();
+    atexit(stop_loop);
+
+    PIUSocket *skt = piu_connect(ip, 4532);
+    if (!skt) {
+        die("failed to connect!\n");
+    }
 
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
         die("nao inicializou o sdl!\n");
@@ -192,7 +213,7 @@ int main() {
         }
         if (quit) break;
 
-        int data_size = read(STDIN_FILENO, inbuf, INBUF_SIZE);
+        int data_size = piu_recv(skt, inbuf, INBUF_SIZE);
         if (data_size <= 0) break;
 
         uint8_t *data = inbuf;

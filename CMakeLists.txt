@@ -16,6 +16,7 @@ set(PLAYER_SOURCES
     src/player.c
 )
 add_subdirectory(lib/stb)
+add_subdirectory(lib/piu)
 
 add_executable(scp ${SCP_SOURCES})
 target_link_libraries(scp
@@ -25,6 +26,7 @@ target_link_libraries(scp
     stb
     avcodec
     avutil
+    piu
 )
 
 add_executable(player ${PLAYER_SOURCES})
@@ -35,4 +37,5 @@ target_link_libraries(player
     stb
     avcodec
     avutil
+    piu
 )

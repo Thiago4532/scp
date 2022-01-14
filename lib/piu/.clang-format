@@ -1,0 +1,7 @@
+BasedOnStyle: Google
+IndentWidth: 4
+AccessModifierOffset: -4
+SpacesBeforeTrailingComments: 1
+AllowShortIfStatementsOnASingleLine: Never
+AllowShortLoopsOnASingleLine: false
+IndentCaseLabels: false
