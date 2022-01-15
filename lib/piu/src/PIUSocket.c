@@ -317,7 +317,8 @@ static bool handle_ack(int fd, const PIUPacket* pkt, struct sockaddr_in* addr, s
 
     while (p->pkt.id != id) {
         if (!p->pkt.was_ack) {
-            skt_sendto(skt, &p->pkt);
+            if (p->next->pkt.id != id)
+                skt_sendto(skt, &p->pkt);
         }
 
         p = p->next;
@@ -377,13 +378,6 @@ PIUSocket* piu_accept(PIUServer* srv) {
 int piu_recv(PIUSocket* skt, void* buf, uint32_t size) {
     piu_buff_lock(&skt->buf_read);
     if (!skt->buf_read.tail || skt->buf_read.tail->pkt.id > skt->read_id) {
-        // printf("Read ID: %d\n", skt->read_id);
-        // if (skt->buf_read.tail) {
-        //     printf("Values: ");
-        //     for (PIUBuffNode *p = skt->buf_read.tail; p != NULL; p = p->next)
-        //         printf("%d ", p->pkt.id);
-        //     printf("\n");
-        // }
         pthread_cond_wait(&skt->data_ready, &skt->buf_read.lock);
     }
 

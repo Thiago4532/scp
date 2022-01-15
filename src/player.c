@@ -19,6 +19,8 @@
 #include <stdbool.h>
 #include <libavutil/pixdesc.h>
 #include "piu/PIUSocket.h"
+#include <arpa/inet.h>
+#include <sys/socket.h>
 
 #define WIDTH 1920
 #define HEIGHT 1080
@@ -27,7 +29,7 @@
 #define DECODER_NAME "h264"
 #define FIFO "./fifo"
 
-#define INBUF_SIZE 32768
+#define INBUF_SIZE 82768
 uint8_t inbuf[INBUF_SIZE + AV_INPUT_BUFFER_PADDING_SIZE];
 int fd;
 
@@ -136,14 +138,6 @@ int main(int argc, char* argv[]) {
             ip = argv[i];
     }
 
-    piu_main_loop();
-    atexit(stop_loop);
-
-    PIUSocket *skt = piu_connect(ip, 4532);
-    if (!skt) {
-        die("failed to connect!\n");
-    }
-
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
         die("nao inicializou o sdl!\n");
     }
@@ -213,8 +207,7 @@ int main(int argc, char* argv[]) {
         }
         if (quit) break;
 
-        int data_size = piu_recv(skt, inbuf, INBUF_SIZE);
-        if (data_size <= 0) break;
+        int data_size = read(STDIN_FILENO, inbuf, INBUF_SIZE);
 
         uint8_t *data = inbuf;
         while (data_size > 0) {

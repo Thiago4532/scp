@@ -15,6 +15,8 @@
 #include <byteswap.h>
 #include <libavcodec/avcodec.h>
 #include <libavutil/opt.h>
+#include <arpa/inet.h>
+#include <sys/socket.h>
 #include "piu/PIUSocket.h"
 
 #define WIDTH 1920
@@ -69,19 +71,6 @@ static void stop_loop() {
 }
 
 int main(int argc, char* argv[]) {
-    piu_main_loop();
-    atexit(stop_loop);
-
-    PIUServer* srv = piu_bind(4532);
-    if (srv == NULL) {
-        die("failed to bind\n");
-    }
-
-    PIUSocket* skt = piu_accept(srv);
-    if (skt == NULL) {
-        die("failed to accept\n");
-    }
-
     if (argc > 1 && (strcmp(argv[1], "--measure") == 0 || strcmp(argv[1], "-m") == 0))
         fd = open(FIFO, O_WRONLY);
     else
@@ -148,7 +137,7 @@ int main(int argc, char* argv[]) {
     c->pix_fmt = AV_PIX_FMT_RGB0;
 
     int err;
-    err = av_opt_set_int(c->priv_data, "preset", 16, 0);
+    err = av_opt_set_int(c->priv_data, "preset", 14, 0);
     if (err < 0) {
         die("failed to set option: %s\n", av_err2str(err));
     }
@@ -227,15 +216,7 @@ int main(int argc, char* argv[]) {
             uint8_t* data = pkt->data;
             int size = pkt->size;
 
-            while (size > 20000) {
-                // write(STDOUT_FILENO, data, 30000);
-                piu_send(skt, data, 20000);
-
-                data += 20000;
-                size -= 20000;
-            }
-            piu_send(skt, data, size);
-            // write(STDOUT_FILENO, data, size);
+            write(STDOUT_FILENO, data, size);
         }
 
         clock_gettime(CLOCK_MONOTONIC, &e);
