@@ -14,7 +14,7 @@
 #include "internal/PIUBuff.h"
 #include "internal/log.h"
 
-#define SKT_MAX_PACKET 32768
+#define SKT_MAX_PACKET 52768
 #define MAX_EPOLL_EVENTS 1024
 #define MAX_FILE_DESCRIPTORS 4096 // TODO: Check file descriptors
 

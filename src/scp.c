@@ -227,12 +227,12 @@ int main(int argc, char* argv[]) {
             uint8_t* data = pkt->data;
             int size = pkt->size;
 
-            while (size > 32000) {
+            while (size > 20000) {
                 // write(STDOUT_FILENO, data, 30000);
-                piu_send(skt, data, 32000);
+                piu_send(skt, data, 20000);
 
-                data += 32000;
-                size -= 32000;
+                data += 20000;
+                size -= 20000;
             }
             piu_send(skt, data, size);
             // write(STDOUT_FILENO, data, size);
